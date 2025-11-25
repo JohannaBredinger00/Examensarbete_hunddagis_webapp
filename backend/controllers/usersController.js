@@ -75,3 +75,56 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+// GET myprofile
+exports.getMyProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        //Hämta user
+        const [user] = await db.query(
+            `SELECT u.id, u.name, u.email, u.role, o.phone, o.address
+             FROM users u
+             LEFT JOIN owners o ON o.user_id = u.id
+             WHERE u.id = ?`,
+            [userId]
+        );
+
+        if (!user[0]) return res.status(404).json({ message: "User not found" });
+        
+        res.json(user[0]);
+    } catch (error) {
+        console.error("Error in getMyProfile:", error);
+        res.status(500).json({ message: 'Failed to load profile' });
+    }
+};
+
+
+// PUT /users/myprofile
+exports.updateMyProfile = async (req, res) => {
+    const { name, email, phone } = req.body;
+    const userId = req.userId;
+
+    try {
+        const [existing] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, userId]);
+        if (existing.length > 0) {
+            return res.status(400).json({ message: 'E-postadressen används redan av en annan användare '});
+        }
+        // Uppdatera users 
+        await db.query(
+            'UPDATE users SET name = ?, email = ? WHERE id = ?',
+            [name, email, userId]
+        );
+
+        //Uppdatera owners-tabellen (telefon)
+        await db.query(
+            'UPDATE owners SET phone = ? WHERE user_id = ?',
+            [phone || null, userId]
+        );
+    
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+            console.error('Error in updateMyProfile:', error);
+        res.status(500).json({ message: 'Failed to update profile' });
+    }
+};
