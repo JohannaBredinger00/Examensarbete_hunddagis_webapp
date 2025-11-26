@@ -8,11 +8,16 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["hunddagis", "backend", "api"],
+  "keywords": [
+    "hunddagis",
+    "backend",
+    "api"
+  ],
   "author": "Johanna Bredinger",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

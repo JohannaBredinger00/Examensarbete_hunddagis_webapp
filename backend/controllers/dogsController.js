@@ -5,7 +5,7 @@ exports.getMyDogs = async (req, res) => {
   try {
     const userId = req.userId;
     
-    console.log('Getting dogs for user:', userId);
+    //console.log('Getting dogs for user:', userId);
 
     db.query(`
       SELECT d.* FROM dogs d 
@@ -29,11 +29,12 @@ exports.getMyDogs = async (req, res) => {
 
 // POST /api/dogs/add - Lägg till ny hund
 exports.addDog = async (req, res) => {
+  console.log("BODY I BACKEND:", req.body);
   try {
     const { name, breed, age, allergies } = req.body;
     const userId = req.userId;
 
-    console.log('Add dog request:', { name, breed, age, allergies, userId });
+    //console.log('Add dog request:', { name, breed, age, allergies, userId });
 
     if (!name) {
       return res.status(400).json({ message: 'Hundens namn krävs' });
@@ -48,7 +49,7 @@ exports.addDog = async (req, res) => {
           return res.status(500).json({ message: 'Database error', error: err.message });
         }
 
-        console.log('Found owner:', ownerResults);
+        //console.log('Found owner:', ownerResults);
 
         if (ownerResults.length === 0) {
           return res.status(404).json({ message: 'Ingen ägare hittades' });
@@ -84,10 +85,10 @@ exports.addDog = async (req, res) => {
 exports.updateDog = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, breed, age, allergies } = req.body;  // Fixat syntaxfelet
+    const { name, breed, age, allergies } = req.body;
     const userId = req.userId;
 
-    console.log('Update dog request:', { id, name, breed, age, allergies, userId });
+    //console.log('Update dog request:', { id, name, breed, age, allergies, userId });
 
     if (!name) {
       return res.status(400).json({ message: 'Hundens namn krävs' });
@@ -124,7 +125,7 @@ exports.deleteDog = async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    console.log('Delete dog request:', { id, userId });
+    //console.log('Delete dog request:', { id, userId });
 
     db.query(
       `DELETE d FROM dogs d

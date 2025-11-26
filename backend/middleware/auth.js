@@ -1,37 +1,42 @@
 const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
-    console.log("AUTH middlewear hit. Headers:", req.headers);
+    console.log("AUTH middleware hit. Method:", req.method);
 
-    const authHeader = req.headers['authorization']; // lowercase
-    const token = authHeader && authHeader.replace('Bearer ', '');
+    //Always allow preflight requests
+    if (req.method === "OPTIONS") {
+        return next();
+    }
 
+    //Read Authorization header (case-insensitive)
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+        return res.status(401).json({ message: 'No authorization header' });
+    }
 
-    //const token = req.header('Authorization')?.replace('Bearer ', '');
-    console.log("Extracted token:", token);
-
+    
+    const token = authHeader.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : null;
 
     if (!token) {
-        return res.status(401).json({ message: 'No token, access denied'});
+        return res.status(401).json({ message: 'Malformed token' });
     }
 
     try {
+        //Verify JWT
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded token:", decoded);
-/*
-        req.user = {
-            userId: decoded.userId,
-            role: decoded.role
-        };
-        */
 
+        console.log("Decoded token:", decoded);
+
+        //Attach user info to request
         req.userId = decoded.userId;
         req.userRole = decoded.role;
-        
+
         next();
     } catch (error) {
         console.log("JWT ERROR:", error);
-        res.status(401).json({ message: 'Invalid token'});
+        return res.status(401).json({ message: 'Invalid or expired token' });
     }
 };
 
