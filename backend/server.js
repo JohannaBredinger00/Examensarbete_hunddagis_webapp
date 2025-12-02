@@ -7,6 +7,8 @@ const ownersRoute = require('./routes/owners');
 const attendanceRoute = require('./routes/attendance');
 //const usersRoute = require('./routes/users');
 require('dotenv').config();
+const adminBookingsRoute = require('./routes/adminBookings');
+const adminDogsRoute = require('./routes/adminDogs');
 
 
 const db = require('./db'); 
@@ -43,12 +45,25 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Routes
-const usersRoute = require('./routes/users');
-app.use('/api/users', usersRoute);
-app.use('/api/dogs', dogsRoute);
-app.use('/api/bookings', bookingsRoute);
-app.use('/api/owners', ownersRoute);
-app.use('/api/attendance', attendanceRoute);
+//const usersRoute = require('./routes/users');
+app.use('/api/users', require('./routes/users'));
+app.use('/api/dogs', require('./routes/dogs'));
+app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/owners', require('./routes/owners'));
+app.use('/api/attendance', require('./routes/attendance'));
+
+/*
+app.use('/api/admin/bookings', require('./routes/adminBookings'));
+app.use('/api/admin/dogs', require('./routes/adminDogs'));
+app.use('/api/admin/users', require ('./routes/adminUsers'));
+app.use('/api/admin/stats', require ('./routes/adminStats'));
+app.use('/admin/attendance', require('./routes/attendance'));
+*/
+
+app.use('/api/admin/bookings', adminBookingsRoute);
+app.use('/api/admin/dogs', adminDogsRoute);
+//app.use('/api/admin/attendance', attendanceRoute); 
+
 
 
 const PORT = process.env.PORT || 5001;

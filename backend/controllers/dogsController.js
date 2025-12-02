@@ -150,3 +150,12 @@ exports.deleteDog = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+exports.getAllDogs = async (req, res) => {
+  try {
+    //const dogs = await dogs.findAll();
+    res.json(dogs);
+  } catch (err) {
+    res.status(500).json({ error: err.message});
+  }
+};
