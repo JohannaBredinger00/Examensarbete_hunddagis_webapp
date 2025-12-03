@@ -4,9 +4,28 @@ const db = require('../db');
 exports.getMyDogs = async (req, res) => {
   try {
     const userId = req.userId;
-    
-    //console.log('Getting dogs for user:', userId);
 
+    const [results] = await db.execute(`
+      SELECT d.* 
+      FROM dogs d 
+      JOIN owners o ON d.owner_id = o.id
+      WHERE o.user_id = ?
+    `, [userId]);
+
+    console.log('Found dogs:', results.length);
+    res.json(results);
+
+  } catch (error) {
+    console.error('Error in getMyDogs:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+/*
+exports.getMyDogs = async (req, res) => {
+  try {
+    const userId = req.userId;
+    
     db.query(`
       SELECT d.* FROM dogs d 
       JOIN owners o ON d.owner_id = o.id
@@ -26,6 +45,8 @@ exports.getMyDogs = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+*/
+
 
 // POST /api/dogs/add - Lägg till ny hund
 exports.addDog = async (req, res) => {
@@ -34,12 +55,46 @@ exports.addDog = async (req, res) => {
     const { name, breed, age, allergies } = req.body;
     const userId = req.userId;
 
-    //console.log('Add dog request:', { name, breed, age, allergies, userId });
+    if (!name) return res.status(400).json({ message: 'Hundens namn krävs' });
 
+    // Hämta owner_id
+    const [ownerResults] = await db.execute(
+      'SELECT id FROM owners WHERE user_id = ?',
+      [userId]
+    );
+
+    if (ownerResults.length === 0) return res.status(404).json({ message: 'Ingen ägare hittades' });
+
+    const [insertResult] = await db.execute(
+      'INSERT INTO dogs (owner_id, name, breed, age, allergies) VALUES (?, ?, ?, ?, ?)',
+      [ownerResults[0].id, name, breed || null, age || null, allergies || null]
+    );
+
+    console.log('Dog inserted with ID:', insertResult.insertId);
+
+    res.status(201).json({ 
+      message: 'Hund tillagd', 
+      dogId: insertResult.insertId 
+    });
+
+  } catch (error) {
+    console.error('Error in addDog:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
+
+/*
+exports.addDog = async (req, res) => {
+  console.log("BODY I BACKEND:", req.body); //loggning i backend
+  try {
+    const { name, breed, age, allergies } = req.body;
+    const userId = req.userId;
     if (!name) {
       return res.status(400).json({ message: 'Hundens namn krävs' });
     }
-
     db.query(
       'SELECT id FROM owners WHERE user_id = ?', 
       [userId], 
@@ -48,8 +103,6 @@ exports.addDog = async (req, res) => {
           console.error('Error finding owner:', err);
           return res.status(500).json({ message: 'Database error', error: err.message });
         }
-
-        //console.log('Found owner:', ownerResults);
 
         if (ownerResults.length === 0) {
           return res.status(404).json({ message: 'Ingen ägare hittades' });
@@ -75,11 +128,13 @@ exports.addDog = async (req, res) => {
       }
     );
     
+  
   } catch (error) {
     console.error('Error in addDog:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+*/
 
 // PUT - uppdatera hund 
 exports.updateDog = async (req, res) => {
@@ -94,7 +149,7 @@ exports.updateDog = async (req, res) => {
       return res.status(400).json({ message: 'Hundens namn krävs' });
     }
 
-    db.query(
+    db.execute(
       `UPDATE dogs d
       JOIN owners o ON d.owner_id = o.id
       SET d.name = ?, d.breed = ?, d.age = ?, d.allergies = ?
@@ -127,7 +182,7 @@ exports.deleteDog = async (req, res) => {
 
     //console.log('Delete dog request:', { id, userId });
 
-    db.query(
+    db.execute(
       `DELETE d FROM dogs d
        JOIN owners o ON d.owner_id = o.id
        WHERE d.id = ? AND o.user_id = ?`,

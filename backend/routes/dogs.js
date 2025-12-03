@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const dogsController = require('../controllers/dogsController');
 const auth = require('../middleware/auth');
+const dogsController = require('../controllers/dogsController');
 
 // Alla routes kräver inloggning
 router.get('/mydogs', auth, dogsController.getMyDogs);

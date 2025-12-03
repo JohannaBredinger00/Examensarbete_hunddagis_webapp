@@ -57,9 +57,11 @@ exports.updateMyProfile = async (req, res) => {
 // GET /api/owners/all - Hämta alla ägare (ADMIN)
 exports.getAllOwners = async (req, res) => {
     try {
+        /*
         if (req.userRole !== 'admin') {
             return res.status(403).json({ message: 'Admin åtkomst krävs' });
         }
+        */
 
         const [owners] = await db.execute(`
             SELECT u.id, u.name, u.email, u.created_at, o.phone, o.address,

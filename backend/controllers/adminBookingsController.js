@@ -3,12 +3,15 @@ const db = require('../db');
 // Hämta alla bokningar
 exports.getAllBookings = async (req, res) => {
   try {
-    const [bookings] = await db.query(`
-      SELECT b.*, d.name AS dog_name, u.name AS owner_name
-            FROM bookings b
-            JOIN dogs d ON b.dog_id = d.id
-            JOIN users u ON d.owner_id = u.id
-            ORDER BY b.date DESC
+    const [bookings] = await db.execute(`
+      SELECT b.id, b.date, b.type, b.status,
+            d.name AS dogName,
+            u.name AS ownerName, u.email AS ownerEmail,
+      FROM bookings b
+      JOIN dogs d ON b.dog_id = d.id
+      JOIN owners o ON d.owner_id = o.id
+      JOIN users u ON o.user_id = u.id = u.id
+      ORDER BY b.date DESC
     `);
     res.json(bookings);
   } catch (err) {
@@ -17,16 +20,18 @@ exports.getAllBookings = async (req, res) => {
   }
 };
 
-exports.getAllBookingById = async (req, res) => {
-  const id = req.params.id;
-
+exports.getBookingById = async (req, res) => {
+  const { id } = req.params.id;
   try{
-    const [result] = await db.query(`
-      SELECT b.*, d.name AS dog_name, u.name AS owner_name
-            FROM bookings b
-            JOIN dogs d ON b.dog_id = d.id
-            JOIN users u ON d.owner_id = u.id
-            WHERE b.id = ?
+    const [result] = await db.execute(`
+      SELECT b.id, b.date, b.type, b.status,
+            d.name AS dogName,
+            u.name AS ownerName, u.email AS ownerEmail
+      FROM bookings b
+      JOIN dogs d ON b.dog_id = d.id
+      JOIN owners o ON d.owner_id = o.id
+      JOIN users u ON o.user_id = u.id
+      WHERE b.id = ?
       `, [id]);
 
       if(result.length === 0)
@@ -39,12 +44,15 @@ exports.getAllBookingById = async (req, res) => {
 };
 
 exports.updateBookingStatus = async (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params.id;
   const { status } = req.body;
-
   try {
-    await db.query(`UPDATE bookings SET status = ? WHERE id = ?`, [status, id]);
-    res.json({ message: 'Booking updated'});
+    const [result] = await db.execute(
+      `UPDATE bookings SET status = ? WHERE id = ?`,
+      [status, id]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ message: "Booking not found "});
+    res.json({ message: "Status updated"});
   } catch (err) {
     res.status(500).json({ error: 'Database error', details: err});
   }

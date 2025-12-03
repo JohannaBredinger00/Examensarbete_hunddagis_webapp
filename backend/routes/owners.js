@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ownersController = require('../controllers/ownersController');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin')
 
 router.get('/myprofile', auth, ownersController.getMyProfile);
 router.put('/myprofile', auth, ownersController.updateMyProfile);
