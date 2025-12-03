@@ -1,0 +1,156 @@
+import axios from 'axios';
+import { User, Dog, Booking } from '../types/types';
+import { stat } from 'fs';
+
+axios.defaults.withCredentials = true;
+
+//const API_URL = 'http://localhost:5001/api';
+
+// Skapar axios instance med bas-URL och credentials
+const api = axios.create({
+    baseURL: 'http://localhost:5001/api',
+    withCredentials: true, // Viktigt för cookies/auth
+});
+
+// Interceptor för att automatiskt lägga till JWT token
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+        config.headers = config.headers || {};
+        (config.headers as any)['Authorization'] = `Bearer ${token}`;
+    }
+    (config.headers as any)['Content-Type'] = 'application/json';
+    return config;
+});
+/*
+    config.headers = {
+        ...config.headers,
+        'Content-Type': 'application/json', // Säkerställer JSON
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+    return config;
+});
+*/
+
+// Interceptor för att hantera errors
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Token ogiltig - logga ut användaren
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
+// -------------------------
+// Auth API functions
+// -------------------------
+export const authAPI = {
+    login: (email: string, password: string) =>
+        api.post<{ token: string; user: User }>('/users/login', { email, password }),
+
+    register: (name: string, email: string, password: string) =>
+        api.post<{ message: string; userId: number }>('/users/register', { name, email, password }),
+};
+
+// -------------------------
+// Dogs API functions 
+// -------------------------
+export const dogsAPI = {
+    getMyDogs: () => api.get<Dog[]>('/dogs/mydogs',
+        { withCredentials: true }),
+
+    addDog: (dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
+        api.post<{ message: string; dogId: number }>('/dogs/add', dogData, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true, // <-- Lägg till denna rad
+        }),
+
+    updateDog: (id: number, dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
+        api.put<{ message: string }>(`/dogs/${id}`, dogData, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true, // <-- Lägg till denna rad
+        }),
+
+    deleteDog: (id: number) =>
+        api.delete<{ message: string }>(`/dogs/${id}`,
+            {withCredentials: true, // <-- Lägg till denna rad
+        }),
+
+    getDogById: (id: number) => api.get<Dog>(`/dogs/${id}`, 
+        { withCredentials: true }),
+};
+
+/*
+export const dogsAPI = {
+    getMyDogs: () => api.get<Dog[]>('/dogs/mydogs'),
+
+    addDog: (dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
+        api.post<{ message: string; dogId: number }>('/dogs/add', dogData, {
+            headers: { 'Content-Type': 'application/json' },
+        }),
+
+    updateDog: (id: number, dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
+        api.put<{ message: string }>(`/dogs/${id}`, dogData, {
+            headers: { 'Content-Type': 'application/json' },
+        }),
+
+    deleteDog: (id: number) =>
+        api.delete<{ message: string }>(`/dogs/${id}`),
+
+    getDogById: (id: number) => api.get<Dog>(`/dogs/${id}`),
+};
+*/
+
+// -------------------------
+// Bookings API functions
+// -------------------------
+export const bookingsAPI = {
+    getMyBookings: () => api.get<Booking[]>('/bookings/mybookings'),
+
+    createBooking: (bookingsData: { dog_id: number; date: string; type: 'full_day' | 'half_day' }) =>
+        api.post<{ message: string; bookingId: number }>('/bookings', bookingsData, {
+            headers: { 'Content-Type': 'application/json' },
+        }),
+
+    updateBooking: (id: number, data: { status?: string; date?: string; type?: 'full_day' | 'half_day' }) =>
+        api.put<{ message: string }>(`/bookings/${id}`, data, {
+            headers: { 'Content-Type': 'application/json' },
+        }),
+};
+
+// -------------------------
+// Users API functions
+// -------------------------
+export const usersAPI = {
+    getMyProfile: () => api.get<User>('/users/myprofile'),
+
+    updateProfile: (data: { name?: string; email?: string; phone?: string }) =>
+        api.put<{ message: string }>('/users/myprofile', data, {
+            headers: { 'Content-Type': 'application/json' },
+        }),
+};
+
+// -------------------------
+// Owners API functions
+// -------------------------
+export const ownersAPI = {
+    getMyProfile: () => api.get<User & { phone?: string; address?: string }>('/owners/myprofile'),
+
+    updateMyProfile: (data: { phone?: string; address?: string }) =>
+        api.put<{ message: string }>('/owners/myprofile', data, {
+            headers: { 'Content-Type': 'application/json' },
+        }),
+};
+
+export const attendanceAPI = {
+    getToday: () => api.get('/attendance/today'),
+    updateStatus: (bookingId: number, status: 'checked_in' | 'checked_out') => 
+        api.put(`/attendance/${bookingId}`, {status}),
+};
+
+export default api;
