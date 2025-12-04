@@ -19,7 +19,7 @@ const AdminAttendance: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get('/admin/attendance/today');
+        const res = await api.get('/attendance/today');
         setAttendance(res.data);
       } catch (err) {
         console.error("Error loading attendance:", err);

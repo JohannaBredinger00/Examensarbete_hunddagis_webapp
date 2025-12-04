@@ -71,27 +71,42 @@ const MyDogs: React.FC = () => {
   };
 
   
-  // Uppdatera hund
-  const handleUpdateDog = async () => {
-    if (!editingDog) return;
+ // Uppdatera hund
+const handleUpdateDog = async () => {
+  if (!editingDog) return;
 
-    try {
-      await dogsAPI.updateDog(editingDog.id, {
-        name: dogForm.name.trim(),
-        breed: dogForm.breed.trim() || undefined,
-        age: dogForm.age ? parseInt(dogForm.age) : undefined,
-        allergies: dogForm.allergies.trim() || undefined
-      });
+  try {
+    await dogsAPI.updateDog(editingDog.id, {
+      name: dogForm.name.trim(),
+      breed: dogForm.breed.trim() || undefined,
+      age: dogForm.age ? parseInt(dogForm.age) : undefined,
+      allergies: dogForm.allergies.trim() || undefined
+    });
 
-      setSuccess('Hund uppdaterad!');
-      await loadDogs();
-      resetForm();
-      setEditingDog(null);
-    } catch (error: any) {
-      console.error('Error updating dog:', error);
-      setError(error.response?.data?.message || 'Kunde inte uppdatera hunden.');
-    }
-  };
+    // Uppdatera hunden i state direkt utan att ladda om
+    setDogs(prev =>
+      prev.map(d =>
+        d.id === editingDog.id
+          ? {
+              ...d,
+              name: dogForm.name.trim(),
+              breed: dogForm.breed.trim() || undefined,
+              age: dogForm.age ? parseInt(dogForm.age) : undefined,
+              allergies: dogForm.allergies.trim() || undefined
+            }
+          : d
+      )
+    );
+
+    setSuccess('Hund uppdaterad!');
+    resetForm();
+    setEditingDog(null);
+  } catch (error: any) {
+    console.error('Error updating dog:', error);
+    setError(error.response?.data?.message || 'Kunde inte uppdatera hunden.');
+  }
+};
+
 
  
   // Ta bort hund
@@ -101,7 +116,9 @@ const MyDogs: React.FC = () => {
     try {
       await dogsAPI.deleteDog(dogId);
       setSuccess('Hund borttagen!');
-      await loadDogs();
+
+      //await loadDogs();
+      setDogs(prev => prev.filter(d => d.id !== dogId));
     } catch (error: any) {
       console.error('Error deleting dog:', error);
       setError(error.response?.data?.message || 'Kunde inte ta bort hunden.');

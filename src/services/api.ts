@@ -20,18 +20,13 @@ api.interceptors.request.use((config) => {
         config.headers = config.headers || {};
         (config.headers as any)['Authorization'] = `Bearer ${token}`;
     }
-    (config.headers as any)['Content-Type'] = 'application/json';
+    
+    if (!config.headers['Content-Type'] && config.method !== 'get') {
+        config.headers['Content-Type'] = 'application/json';
+    } 
     return config;
 });
-/*
-    config.headers = {
-        ...config.headers,
-        'Content-Type': 'application/json', // Säkerställer JSON
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
-    return config;
-});
-*/
+
 
 // Interceptor för att hantera errors
 api.interceptors.response.use(
@@ -67,44 +62,23 @@ export const dogsAPI = {
     addDog: (dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
         api.post<{ message: string; dogId: number }>('/dogs/add', dogData, {
             headers: { 'Content-Type': 'application/json' },
-            withCredentials: true, // <-- Lägg till denna rad
+            withCredentials: true, 
         }),
 
     updateDog: (id: number, dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
         api.put<{ message: string }>(`/dogs/${id}`, dogData, {
             headers: { 'Content-Type': 'application/json' },
-            withCredentials: true, // <-- Lägg till denna rad
+            withCredentials: true, 
         }),
 
     deleteDog: (id: number) =>
         api.delete<{ message: string }>(`/dogs/${id}`,
-            {withCredentials: true, // <-- Lägg till denna rad
+            {withCredentials: true, 
         }),
 
     getDogById: (id: number) => api.get<Dog>(`/dogs/${id}`, 
         { withCredentials: true }),
 };
-
-/*
-export const dogsAPI = {
-    getMyDogs: () => api.get<Dog[]>('/dogs/mydogs'),
-
-    addDog: (dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
-        api.post<{ message: string; dogId: number }>('/dogs/add', dogData, {
-            headers: { 'Content-Type': 'application/json' },
-        }),
-
-    updateDog: (id: number, dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
-        api.put<{ message: string }>(`/dogs/${id}`, dogData, {
-            headers: { 'Content-Type': 'application/json' },
-        }),
-
-    deleteDog: (id: number) =>
-        api.delete<{ message: string }>(`/dogs/${id}`),
-
-    getDogById: (id: number) => api.get<Dog>(`/dogs/${id}`),
-};
-*/
 
 // -------------------------
 // Bookings API functions

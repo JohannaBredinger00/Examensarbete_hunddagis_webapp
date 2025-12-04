@@ -20,6 +20,8 @@ const AdminDogs: React.FC = () => {
   useEffect(() => {
     const fetchDogs = async () => {
       try {
+        console.log('Token before admin fetch:', localStorage.getItem('token'));
+        
         const res = await api.get('/admin/dogs/all');
         setDogs(res.data);
       } catch (err) {

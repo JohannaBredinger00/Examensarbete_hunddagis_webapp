@@ -13,9 +13,9 @@ const AdminDashboard: React.FC = () => {
         <div className="admin-section">
           <h3>Admin Verktyg</h3>
           <div className="admin-actions">
-            <Link to="/admin/bookings" className="admin-btn">Alla bokningar</Link>
-            <Link to="/admin/attendance" className="admin-btn">Närvarolista</Link>
             <Link to="/admin/dogs" className="admin-btn">Alla hundar</Link>
+            <Link to="/admin/attendance" className="admin-btn">Närvarolista</Link>
+            <Link to="/admin/bookings" className="admin-btn">Alla bokningar</Link>
           </div>
         </div>
       </div>
