@@ -7,7 +7,7 @@ exports.getTodayAttendance = async (req, res) => {
     const [rows] = await db.execute(`
       SELECT  b.id AS bookingId, b.type, b.status,
               b.checkin_time, b.checkout_time,
-              b.id AS dogId, d.name AS dogName,
+              d.id AS dogId, d.name AS dogName,
               u.name AS ownerName, u.email AS ownerEmail
       FROM bookings b
       JOIN dogs d ON b.dog_id = d.id
@@ -28,7 +28,7 @@ exports.checkIn = async (req, res) => {
   const { bookingId } = req.params;
   try {
     const [result] = await db.execute(
-      `UPDATE bookings SET status ='checked_in', checking_time=NOW() WHERE id=?`,
+      `UPDATE bookings SET status='checked_in', checkin_time=NOW() WHERE id=?`,
       [bookingId]
     );
     if (result.affectedRows === 0) return res.status(404).json({ message: "Booking not found"});

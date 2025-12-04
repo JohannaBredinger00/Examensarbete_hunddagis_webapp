@@ -21,32 +21,6 @@ exports.getMyDogs = async (req, res) => {
   }
 };
 
-/*
-exports.getMyDogs = async (req, res) => {
-  try {
-    const userId = req.userId;
-    
-    db.query(`
-      SELECT d.* FROM dogs d 
-      JOIN owners o ON d.owner_id = o.id
-      WHERE o.user_id = ?
-    `, [userId], (err, results) => {
-      if (err) {
-        console.error('Error in getMyDogs:', err);
-        return res.status(500).json({ message: 'Database error', error: err.message });
-      }
-
-      console.log('Found dogs:', results.length);
-      res.json(results);
-    });
-    
-  } catch (error) {
-    console.error('Error in getMyDogs:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-*/
-
 
 // POST /api/dogs/add - Lägg till ny hund
 exports.addDog = async (req, res) => {
@@ -84,70 +58,17 @@ exports.addDog = async (req, res) => {
 };
 
 
-
-
-/*
-exports.addDog = async (req, res) => {
-  console.log("BODY I BACKEND:", req.body); //loggning i backend
-  try {
-    const { name, breed, age, allergies } = req.body;
-    const userId = req.userId;
-    if (!name) {
-      return res.status(400).json({ message: 'Hundens namn krävs' });
-    }
-    db.query(
-      'SELECT id FROM owners WHERE user_id = ?', 
-      [userId], 
-      (err, ownerResults) => {
-        if (err) {
-          console.error('Error finding owner:', err);
-          return res.status(500).json({ message: 'Database error', error: err.message });
-        }
-
-        if (ownerResults.length === 0) {
-          return res.status(404).json({ message: 'Ingen ägare hittades' });
-        }
-
-        db.query(
-          'INSERT INTO dogs (owner_id, name, breed, age, allergies) VALUES (?, ?, ?, ?, ?)',
-          [ownerResults[0].id, name, breed || null, age || null, allergies || null],
-          (err, insertResult) => {
-            if (err) {
-              console.error('Error inserting dog:', err);
-              return res.status(500).json({ message: 'Database error', error: err.message });
-            }
-
-            console.log('Dog inserted with ID:', insertResult.insertId);
-
-            res.status(201).json({ 
-              message: 'Hund tillagd', 
-              dogId: insertResult.insertId 
-            });
-          }
-        );
-      }
-    );
-    
-  
-  } catch (error) {
-    console.error('Error in addDog:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-*/
-
 // PUT - uppdatera hund 
 exports.updateDog = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, breed, age, allergies } = req.body;
     const userId = req.userId;
-
-    //console.log('Update dog request:', { id, name, breed, age, allergies, userId });
+    const { name, breed, age, allergies } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: 'Hundens namn krävs' });
     }
+    
 
     db.execute(
       `UPDATE dogs d
@@ -180,31 +101,30 @@ exports.deleteDog = async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    //console.log('Delete dog request:', { id, userId });
+    console.log(`DELETE dog id=${id}, userId=${userId}`);
 
-    db.execute(
+    const [result] = await db.execute(
       `DELETE d FROM dogs d
-       JOIN owners o ON d.owner_id = o.id
-       WHERE d.id = ? AND o.user_id = ?`,
-      [id, userId],
-      (err, result) => {
-        if (err) {
-          console.error('Error deleting dog:', err);
-          return res.status(500).json({ message: 'Database error', error: err.message });
-        }
-
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ message: 'Hund ej hittad' });
-        }
-
-        res.json({ message: 'Hund borttagen' });
-      }
+      JOIN owners o ON d.owner_id = o.id
+      WHERE d.id = ? AND o.user_id = ?`,
+      [id, userId]
     );
+
+    console.log("DB result:", result);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Hund ej hittad"});
+    }
+
+    return res.json({ message: "Hund borttagen"});
+
   } catch (error) {
-    console.error('Error in deleteDog:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.log("Error deleting dog:", error);
+    return res.status(500).json({ message: "Server error", error: error.message});
   }
 };
+
+  
 
 exports.getAllDogs = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ const attendanceController = require('../controllers/attendanceController');
 
 
 router.get('/today', auth, admin, attendanceController.getTodayAttendance);
-router.post('/checkin/:bookingId', auth, admin, attendanceController.checkIn);
-router.post('/checkout/:bookingId', auth, admin, attendanceController.checkOut);
+router.post('/:bookingId/checkin', auth, admin, attendanceController.checkIn);
+router.post('/:bookingId/checkout', auth, admin, attendanceController.checkOut);
 
 module.exports = router; 

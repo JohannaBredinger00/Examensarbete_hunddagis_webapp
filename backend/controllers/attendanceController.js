@@ -18,7 +18,8 @@ exports.getTodayAttendance = (req, res) => {
                 u.name AS ownerName
             FROM bookings b
             JOIN dogs d ON b.dog_id = d.id
-            JOIN users u ON d.owner_id = u.id
+            JOIN owners o ON d.owner_id = o.id
+            JOIN users u ON o.user_id = u.id
             WHERE b.date = ?
             ORDER BY d.name ASC
         `;

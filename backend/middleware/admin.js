@@ -1,9 +1,9 @@
 module.exports = (req, res, next) => {
-    if (!req.user) {
+    if (!req.userRole) {
         return res.status(401).json({ message: "Not authenticated" });
     }
 
-    if (req.user.role !== 'admin') {
+    if (req.userRole !== 'admin') {
         return res.status(403).json({ message: "Access denied: Admins only" });
     }
 
