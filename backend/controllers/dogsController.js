@@ -70,29 +70,35 @@ exports.updateDog = async (req, res) => {
     }
     
 
-    db.execute(
+    const [result] = await db.execute(
       `UPDATE dogs d
       JOIN owners o ON d.owner_id = o.id
       SET d.name = ?, d.breed = ?, d.age = ?, d.allergies = ?
       WHERE d.id = ? AND o.user_id = ?`,
-      [name, breed || null, age || null, allergies || null, id, userId],
-      (err, result) => {
-        if (err) {
-          console.error('Error updating dog:', err);
-          return res.status(500).json({ message: 'Database error', error: err.message });
-        }
-
+      [name, breed || null, age || null, allergies || null, id, userId]
+    );
         if (result.affectedRows === 0) {
           return res.status(400).json({ message: 'Hund ej hittad' });
         }
 
-        res.json({ message: 'Hund uppdaterad' });
+        // Hämta den uppdaterade hunden
+        const [updatedRows] = await db.execute(
+          `SELECT d.id, d.name, d.breed, d.age, d.allergies, o.id AS ownerId
+          FROM dogs d
+          JOIN owners o ON d.owner_id = o.id
+          WHERE d.id = ?`,
+        [id]
+      );
+      const updateDog = updatedRows[0];
+
+        res.json({ message: 'Hund uppdaterad',
+          dog: updateDog 
+          /*{ id, name, breed, age, allergies }*/
+         });
+      } catch (error) {
+        console.error('Error in updateDog', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
       }
-    );
-  } catch (error) {
-    console.error('Error in updateDog', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
 };
 
 // DELETE /api/dogs/:id - Ta bort hund
