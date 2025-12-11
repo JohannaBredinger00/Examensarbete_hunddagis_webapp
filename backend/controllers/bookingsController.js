@@ -32,6 +32,9 @@ const createBooking = async (req, res) => {
     const { dog_id, date, type } = req.body;
     const userId = req.userId;
 
+    console.log('Inserting booking:', { dog_id, date, type });
+
+
     try {
         if (!dog_id || !date || !type) {
             return res.status(400).json({ message: 'Alla fält krävs' });

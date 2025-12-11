@@ -3,17 +3,21 @@ const db = require('../db');
 // Hämta alla bokningar
 exports.getAllBookings = async (req, res) => {
   try {
-    const [bookings] = await db.execute(`
-      SELECT b.id, b.date, b.type, b.status,
-            d.name AS dogName,
-            u.name AS ownerName, u.email AS ownerEmail,
-      FROM bookings b
-      JOIN dogs d ON b.dog_id = d.id
-      JOIN owners o ON d.owner_id = o.id
-      JOIN users u ON o.user_id = u.id = u.id
-      ORDER BY b.date DESC
-    `);
-    res.json(bookings);
+   const [bookings] = await db.execute(`
+  SELECT b.id, b.date, b.type, b.status,
+         d.name AS dog_name,
+         u.name AS ownerName,
+         u.email AS ownerEmail
+  FROM bookings b
+  JOIN dogs d ON b.dog_id = d.id
+  JOIN owners o ON d.owner_id = o.id
+  JOIN users u ON o.user_id = u.id
+  ORDER BY b.date DESC
+`);
+console.log("Backend bookings:", bookings);
+console.log(bookings);
+res.json(bookings);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error', details: err });
@@ -21,11 +25,11 @@ exports.getAllBookings = async (req, res) => {
 };
 
 exports.getBookingById = async (req, res) => {
-  const { id } = req.params.id;
+  const { id } = req.params;
   try{
     const [result] = await db.execute(`
       SELECT b.id, b.date, b.type, b.status,
-            d.name AS dogName,
+            d.name AS dog_name,
             u.name AS ownerName, u.email AS ownerEmail
       FROM bookings b
       JOIN dogs d ON b.dog_id = d.id
@@ -44,7 +48,7 @@ exports.getBookingById = async (req, res) => {
 };
 
 exports.updateBookingStatus = async (req, res) => {
-  const { id } = req.params.id;
+  const { id } = req.params;
   const { status } = req.body;
   try {
     const [result] = await db.execute(
