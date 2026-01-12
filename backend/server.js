@@ -4,16 +4,19 @@ const cors = require('cors');
 const dogsRoute = require('./routes/dogs');
 const bookingsRoute = require('./routes/bookings');
 const ownersRoute = require('./routes/owners');
-const attendanceRoute = require('./routes/attendance');
+const attendanceRoutes = require('./routes/attendance');
 //const usersRoute = require('./routes/users');
 require('dotenv').config();
 const adminBookingsRoute = require('./routes/adminBookings');
 const adminDogsRoute = require('./routes/adminDogs');
 
-
 const db = require('./db'); 
 const app = express();
 
+app.use((req, res, next) => {
+  console.log("Incoming request:", req.method, req.url, "Authorization:", req.headers.authorization || "None");
+  next();
+});
 const corsOptions = {
     origin: 'http://localhost:3000',
     credentials: true,
@@ -21,6 +24,21 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
    exposedHeaders: ['Content-Type'],
 };
+
+
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // frontend URL
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 
 
 app.use(cors(corsOptions));
@@ -48,6 +66,16 @@ app.use('/api/admin/dogs', adminDogsRoute);
 
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
+
+    try{
+        const [rows] = await db.query("SHOW COLUMNS FROM bookings");
+        console.log("columns in bookings table:");
+        console.log(rows);
+
+    } catch (err) {
+        console.error("error loading columns:" ,err);
+    }
 });
+

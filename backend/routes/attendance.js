@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
-const attendanceController = require('../controllers/attendanceController');
+const attendanceController = require('../controllers/adminAttendanceController');
 
 
 router.get('/today', auth, admin, attendanceController.getTodayAttendance);

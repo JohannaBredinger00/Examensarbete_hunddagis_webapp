@@ -3,20 +3,19 @@ const db = require('../db');
 exports.getTodayAttendance = async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
-
     const [rows] = await db.execute(`
       SELECT  b.id AS bookingId, b.type, b.status,
               b.checkin_time, b.checkout_time,
-              d.id AS dogId, d.name AS dogName,
-              u.name AS ownerName, u.email AS ownerEmail
+              d.id AS dogId, d.name AS dog_name,
+              u.name AS owner_name, u.email AS ownerEmail
       FROM bookings b
       JOIN dogs d ON b.dog_id = d.id
       JOIN owners o ON d.owner_id = o.id
       JOIN users u ON o.user_id = u.id
-      WHERE b.date = ?
+      WHERE b.date = ? AND b.status IN ('booked', 'checked_in')
       ORDER BY d.name ASC
-    `, [today]);
 
+    `, [today]);
     res.json(rows);
   } catch (err) {
     console.error(err);

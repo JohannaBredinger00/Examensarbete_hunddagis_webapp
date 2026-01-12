@@ -1,5 +1,10 @@
 const db = require('../db');
 
+console.log("AttendanceController using DB config:", {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  database: process.env.DB_NAME
+});
 // GET – alla hundar med bokning idag
 exports.getTodayAttendance = (req, res) => {
     try {

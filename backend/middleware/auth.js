@@ -26,13 +26,11 @@ const auth = (req, res, next) => {
     try {
         //Verify JWT
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        console.log("Decoded token:", decoded);
+        console.log("AUTH middlewear decoded:", decoded);
 
         //Attach user info to request
         req.userId = decoded.userId;
         req.userRole = decoded.role;
-
         next();
     } catch (error) {
         console.log("JWT ERROR:", error);
