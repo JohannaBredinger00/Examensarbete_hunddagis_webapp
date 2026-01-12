@@ -1,3 +1,4 @@
+
 export interface User {
     id: number;
     name: string;
@@ -21,7 +22,9 @@ export interface Booking {
     date: string;
     type: 'full_day' | 'half_day';
     status: 'booked' | 'canceled' | null;
-    dog_name?: string;
+    dog_name: string;
+    owner_name: string;
+    owner_email: string;
     breed?: string;
 }
 

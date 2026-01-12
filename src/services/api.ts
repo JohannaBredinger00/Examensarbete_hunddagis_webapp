@@ -1,29 +1,28 @@
 import axios from 'axios';
 import { User, Dog, Booking } from '../types/types';
-import { stat } from 'fs';
 
 axios.defaults.withCredentials = true;
 
 //const API_URL = 'http://localhost:5001/api';
 
 // Skapar axios instance med bas-URL och credentials
-const api = axios.create({
-    baseURL: 'http://localhost:5001/api',
-    withCredentials: true, // Viktigt för cookies/auth
+const api = axios.create({baseURL: 'http://localhost:5001/api'
+    //withCredentials: true, // Viktigt för cookies/auth
 });
 
 // Interceptor för att automatiskt lägga till JWT token
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
-
+    console.log('JWT token:', token);
+    config.headers = config.headers || {};
     if (token) {
-        config.headers = config.headers || {};
-        (config.headers as any)['Authorization'] = `Bearer ${token}`;
+        config.headers['Authorization'] = `Bearer ${token}`;
     }
-    
-    if (!config.headers['Content-Type'] && config.method !== 'get') {
+    if (config.method && config.method.toLowerCase() !== 'get') {
+        if (!config.headers['Content-Type']) {
         config.headers['Content-Type'] = 'application/json';
     } 
+    }
     return config;
 });
 
@@ -34,8 +33,8 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             // Token ogiltig - logga ut användaren
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            //localStorage.removeItem('token');
+            //window.location.href = '/login';
         }
         return Promise.reject(error);
     }
@@ -66,7 +65,7 @@ export const dogsAPI = {
         }),
 
     updateDog: (id: number, dogData: { name: string; breed?: string; age?: number; allergies?: string }) =>
-        api.put<{ message: string }>(`/dogs/${id}`, dogData, {
+        api.put<{ message: string; dog: Dog }>(`/dogs/${id}`, dogData, {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true, 
         }),
@@ -123,8 +122,27 @@ export const ownersAPI = {
 
 export const attendanceAPI = {
     getToday: () => api.get('/attendance/today'),
+    checkIn: (bookingId: number) => api.post(`/attendance/${bookingId}/checkin`, {}, {withCredentials: true}),
+    checkOut: (bookingId: number) => api.post(`/attendance/${bookingId}/checkout`, {}, {withCredentials:  true}),
     updateStatus: (bookingId: number, status: 'checked_in' | 'checked_out') => 
         api.put(`/attendance/${bookingId}`, {status}),
+};
+
+// Admin Dogs API functions
+export const adminDogsAPI = {
+    getAllDogs: () => 
+        api.get('/admin/dogs/all'),
+
+    getDogById: (id: number) => 
+        api.get(`/admin/dogs/${id}`),
+
+    updateDog: (id: number, dogData: {
+        name: string;
+        breed?: string;
+        age?: number;
+        allergies?: string;
+    }) => 
+        api.put(`/admin/dogs/${id}`, dogData),
 };
 
 export default api;

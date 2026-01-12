@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/pages/AdminDashboard.css';
+import '../../styles/pages/admin/AdminBookings.css';
 import api from '../../services/api';
 
 interface Booking {
   id: number;
-  dogName: string;
-  ownerName: string;
+  dog_name: string;
+  owner_name: string;
   date: string;
   type: string;
   status: string;
@@ -19,6 +19,7 @@ const AdminBookings: React.FC = () => {
     const load = async () => {
       try {
         const res = await api.get('/admin/bookings/all');
+        console.log("Data från API:", res.data);
         setBookings(
           res.data.sort((a: Booking, b: Booking) => (a.status === 'pending' ? -1 : 1))
         );
@@ -48,12 +49,12 @@ const AdminBookings: React.FC = () => {
     new Date(d).toLocaleDateString('sv-SE', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
+    <div className="admin-dashboard">
+      <header className="admin-dashboard-header">
         <h1>Alla Bokningar</h1>
       </header>
 
-      <div className="dashboard-content">
+      <div className="admin-dashboard-content">
         {loading ? (
           <p>Laddar...</p>
         ) : bookings.length === 0 ? (
@@ -73,8 +74,8 @@ const AdminBookings: React.FC = () => {
             <tbody>
               {bookings.map(b => (
                 <tr key={b.id}>
-                  <td>{b.dogName}</td>
-                  <td>{b.ownerName}</td>
+                  <td>{b.dog_name}</td>
+                  <td>{b.owner_name}</td>
                   <td>{formatDate(b.date)}</td>
                   <td>{b.type}</td>
                   <td className={b.status}>{b.status}</td>

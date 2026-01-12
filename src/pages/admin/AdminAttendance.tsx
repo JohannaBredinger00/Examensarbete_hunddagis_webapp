@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/pages/AdminDashboard.css';
-import api from '../../services/api';
+import '../../styles/pages/admin/AdminAttendance.css';
+import { attendanceAPI } from '../../services/api';
 
 interface AttendanceItem {
   bookingId: number;
-  dogName: string;
-  ownerName: string;
+  dog_name: string;
+  owner_name: string;
   type: string;
   status: string;
   checkin_time: string | null;
@@ -15,57 +15,77 @@ interface AttendanceItem {
 const AdminAttendance: React.FC = () => {
   const [attendance, setAttendance] = useState<AttendanceItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
-    const load = async () => {
+    const loadAttendance = async () => {
+      setLoading(true);
       try {
-        const res = await api.get('/attendance/today');
+        console.log('Laddar närvaro från API...');
+        const res = await attendanceAPI.getToday();
+        console.log('API response:', res.data);
+        const data = Array.isArray(res.data) ? res.data : res.data.attendance || [];
         setAttendance(res.data);
-      } catch (err) {
-        console.error("Error loading attendance:", err);
+      } catch (err: any) {
+        console.error('Error loading attendance:', err.response?.data || err.message);
+        setAttendance([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    load();
+    loadAttendance();
   }, []);
 
   const checkIn = async (id: number) => {
-    await api.post(`/attendance/${id}/checkin`);
-    setAttendance(prev =>
-      prev.map(a =>
-        a.bookingId === id
-          ? { ...a, status: 'checked_in', checkin_time: new Date().toISOString() }
-          : a
-      )
-    );
+    setUpdatingId(id);
+    try {
+      await attendanceAPI.checkIn(id);
+      setAttendance(prev =>
+        prev.map(a =>
+          a.bookingId === id
+            ? { ...a, status: 'checked_in', checkin_time: new Date().toISOString() }
+            : a
+        )
+      );
+    } catch (err) {
+      console.error('Check-in failed:', err);
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   const checkOut = async (id: number) => {
-    await api.post(`/attendance/${id}/checkout`);
-    setAttendance(prev =>
-      prev.map(a =>
-        a.bookingId === id
-          ? { ...a, status: 'checked_out', checkout_time: new Date().toISOString() }
-          : a
-      )
-    );
+    setUpdatingId(id);
+    try {
+      await attendanceAPI.checkOut(id);
+      setAttendance(prev => prev.filter(a => a.bookingId !== id));
+     /* setAttendance(prev =>
+        prev.map(a =>
+          a.bookingId === id
+            ? { ...a, status: 'checked_out', checkout_time: new Date().toISOString() }
+            : a
+        )
+      ); */
+    } catch (err) {
+      console.error('Check-out failed:', err);
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   const formatTime = (time: string | null) =>
     time ? new Date(time).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) : '-';
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
+    <div className="admin-dashboard">
+      <header className="admin-dashboard-header">
         <h1>Närvarolista – Idag</h1>
       </header>
 
-      <div className="dashboard-content">
-        {loading ? (
-          <p>Laddar...</p>
-        ) : attendance.length === 0 ? (
-          <p>Inga bokningar idag</p>
-        ) : (
+      <div className="admin-dashboard-content">
+        {loading && <p>Laddar...</p>}
+        {!loading && attendance.length === 0 && <p>Inga bokningar idag</p>}
+        {!loading && attendance.length > 0 && (
           <table className="admin-table">
             <thead>
               <tr>
@@ -78,36 +98,38 @@ const AdminAttendance: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {attendance.map(a => (
-                <tr key={a.bookingId}>
-                  <td>{a.dogName}</td>
-                  <td>{a.ownerName}</td>
-                  <td>{a.type}</td>
-                  <td className={a.status}>
-                    {a.status === 'pending' && 'Ej incheckad'}
-                    {a.status === 'checked_in' && 'Incheckad'}
-                    {a.status === 'checked_out' && 'Utcheckad'}
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={a.status !== 'pending'}
-                      onChange={() => checkIn(a.bookingId)}
-                      disabled={a.status !== 'pending'}
-                    />
-                    <span>{formatTime(a.checkin_time)}</span>
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={a.status === 'checked_out'}
-                      onChange={() => checkOut(a.bookingId)}
-                      disabled={a.status !== 'checked_in'}
-                    />
-                    <span>{formatTime(a.checkout_time)}</span>
-                  </td>
-                </tr>
-              ))}
+              {attendance.map(a => {
+                return (
+                  <tr key={a.bookingId}>
+                    <td>{a.dog_name}</td>
+                    <td>{a.owner_name}</td>
+                    <td>{a.type}</td>
+                    <td className={a.status}>
+                      {a.status === 'booked' && 'Ej incheckad'}
+                      {a.status === 'checked_in' && 'Incheckad'}
+                      {a.status === 'checked_out' && 'Utcheckad'}
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={a.status === 'checked_in' || a.status === 'checked_out'}
+                        onChange={() => checkIn(a.bookingId)}
+                        disabled={a.status !== 'booked' || updatingId === a.bookingId}
+                      />
+                      <span>{formatTime(a.checkin_time)}</span>
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={a.status === 'checked_out'}
+                        onChange={() => checkOut(a.bookingId)}
+                        disabled={a.status !== 'checked_in' || updatingId === a.bookingId}
+                      />
+                      <span>{formatTime(a.checkout_time)}</span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

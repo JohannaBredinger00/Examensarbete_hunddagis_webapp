@@ -101,6 +101,7 @@ const handleUpdateDog = async () => {
     setSuccess('Hund uppdaterad!');
     resetForm();
     setEditingDog(null);
+    setShowAddForm(false);
   } catch (error: any) {
     console.error('Error updating dog:', error);
     setError(error.response?.data?.message || 'Kunde inte uppdatera hunden.');

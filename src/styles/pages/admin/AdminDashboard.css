@@ -1,0 +1,32 @@
+
+/*Admin - global layout*/
+.admin-dashboard {
+    padding: 2rem;
+    background-color: #f7f7f7;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    min-height: 100vh;
+}
+
+.admin-dashboard-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.admin-dashboard-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.admin-dashboard-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+
+
+
+
+
