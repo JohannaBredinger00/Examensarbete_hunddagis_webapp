@@ -9,6 +9,7 @@ const attendanceRoutes = require('./routes/attendance');
 require('dotenv').config();
 const adminBookingsRoute = require('./routes/adminBookings');
 const adminDogsRoute = require('./routes/adminDogs');
+const path = require('path');
 
 const db = require('./db'); 
 const app = express();
@@ -44,7 +45,7 @@ app.use((req, res, next) => {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

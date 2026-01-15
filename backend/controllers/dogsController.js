@@ -24,7 +24,8 @@ exports.getMyDogs = async (req, res) => {
 
 // POST /api/dogs/add - Lägg till ny hund
 exports.addDog = async (req, res) => {
-  console.log("BODY I BACKEND:", req.body);
+  console.log('REQ BODY:', req.body);
+  console.log('REQ FILE:', req.file);
   try {
     const { name, breed, age, allergies } = req.body;
     const userId = req.userId;
@@ -39,12 +40,12 @@ exports.addDog = async (req, res) => {
 
     if (ownerResults.length === 0) return res.status(404).json({ message: 'Ingen ägare hittades' });
 
-    const [insertResult] = await db.execute(
-      'INSERT INTO dogs (owner_id, name, breed, age, allergies) VALUES (?, ?, ?, ?, ?)',
-      [ownerResults[0].id, name, breed || null, age || null, allergies || null]
-    );
+    const image = req.file ? req.file.filename : null;
 
-    console.log('Dog inserted with ID:', insertResult.insertId);
+    const [insertResult] = await db.execute(
+      'INSERT INTO dogs (owner_id, name, breed, age, allergies, image) VALUES (?, ?, ?, ?, ?, ?)',
+      [ownerResults[0].id, name, breed || null, age || null, allergies || null, image || null]
+    )
 
     res.status(201).json({ 
       message: 'Hund tillagd', 
@@ -68,8 +69,32 @@ exports.updateDog = async (req, res) => {
     if (!name) {
       return res.status(400).json({ message: 'Hundens namn krävs' });
     }
-    
+    let image;
+      if(req.file) {
+        image = req.file.filename;
+      }
 
+      const ageValue = age ? parseInt (age) : null;
+
+      let sql = `UPDATE dogs d
+                  JOIN owners o ON d.owner_id = o.id
+                  SET d.name = ?, d.breed = ?, d.age = ?, d.allergies = ?`;
+      const params = [name, breed || null, age || null, allergies || null];
+
+      if (image) {
+        sql += `, d.image = ? `; 
+        params.push(image);
+      }
+
+      sql += ` WHERE d.id = ? AND o.user_id = ?`;
+      params.push(id, userId);
+
+      const [result] = await db.execute(sql, params);
+
+      if (result.affectedRows === 0) {
+        return res.status(400).json({message: 'Hund ej hittad'});
+      }
+/*
     const [result] = await db.execute(
       `UPDATE dogs d
       JOIN owners o ON d.owner_id = o.id
@@ -80,10 +105,11 @@ exports.updateDog = async (req, res) => {
         if (result.affectedRows === 0) {
           return res.status(400).json({ message: 'Hund ej hittad' });
         }
+          */
 
         // Hämta den uppdaterade hunden
         const [updatedRows] = await db.execute(
-          `SELECT d.id, d.name, d.breed, d.age, d.allergies, o.id AS ownerId
+          `SELECT d.id, d.name, d.breed, d.age, d.allergies, d.image, o.id AS ownerId
           FROM dogs d
           JOIN owners o ON d.owner_id = o.id
           WHERE d.id = ?`,

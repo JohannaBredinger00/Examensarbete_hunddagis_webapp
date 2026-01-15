@@ -8,4 +8,6 @@ const adminDogsController = require('../controllers/adminDogsController');
 router.get('/all', auth, admin, adminDogsController.getAllDogs);
 router.get('/:id', auth, admin, adminDogsController.getDogById);
 
+router.put('/:id', auth, admin, adminDogsController.updateDog);
+
 module.exports = router;

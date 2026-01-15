@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const dogsController = require('../controllers/dogsController');
+const upload = require('../middleware/upload');
+
+
+router.post('/add', auth, upload.single('image'),dogsController.addDog);
+router.put('/:id', auth, upload.single('image'), dogsController.updateDog);
+
 
 // Alla routes kräver inloggning
 router.get('/mydogs', auth, dogsController.getMyDogs);
