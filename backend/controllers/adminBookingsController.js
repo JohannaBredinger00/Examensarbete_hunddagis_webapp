@@ -14,8 +14,8 @@ exports.getAllBookings = async (req, res) => {
   JOIN users u ON o.user_id = u.id
   ORDER BY b.date DESC
 `);
-console.log("Backend bookings:", bookings);
-console.log(bookings);
+//console.log("Backend bookings:", bookings);
+//console.log(bookings);
 res.json(bookings);
 
   } catch (err) {

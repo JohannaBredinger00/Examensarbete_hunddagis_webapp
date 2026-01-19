@@ -29,7 +29,7 @@ const corsOptions = {
 
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // frontend URL
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -72,9 +72,6 @@ app.listen(PORT, async () => {
 
     try{
         const [rows] = await db.query("SHOW COLUMNS FROM bookings");
-        console.log("columns in bookings table:");
-        console.log(rows);
-
     } catch (err) {
         console.error("error loading columns:" ,err);
     }

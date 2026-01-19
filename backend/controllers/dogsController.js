@@ -12,7 +12,7 @@ exports.getMyDogs = async (req, res) => {
       WHERE o.user_id = ?
     `, [userId]);
 
-    console.log('Found dogs:', results.length);
+    //console.log('Found dogs:', results.length);
     res.json(results);
 
   } catch (error) {
@@ -94,18 +94,6 @@ exports.updateDog = async (req, res) => {
       if (result.affectedRows === 0) {
         return res.status(400).json({message: 'Hund ej hittad'});
       }
-/*
-    const [result] = await db.execute(
-      `UPDATE dogs d
-      JOIN owners o ON d.owner_id = o.id
-      SET d.name = ?, d.breed = ?, d.age = ?, d.allergies = ?
-      WHERE d.id = ? AND o.user_id = ?`,
-      [name, breed || null, age || null, allergies || null, id, userId]
-    );
-        if (result.affectedRows === 0) {
-          return res.status(400).json({ message: 'Hund ej hittad' });
-        }
-          */
 
         // Hämta den uppdaterade hunden
         const [updatedRows] = await db.execute(
@@ -119,7 +107,6 @@ exports.updateDog = async (req, res) => {
 
         res.json({ message: 'Hund uppdaterad',
           dog: updateDog 
-          /*{ id, name, breed, age, allergies }*/
          });
       } catch (error) {
         console.error('Error in updateDog', error);
@@ -133,7 +120,7 @@ exports.deleteDog = async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    console.log(`DELETE dog id=${id}, userId=${userId}`);
+    //console.log(`DELETE dog id=${id}, userId=${userId}`);
 
     const [result] = await db.execute(
       `DELETE d FROM dogs d
@@ -142,7 +129,7 @@ exports.deleteDog = async (req, res) => {
       [id, userId]
     );
 
-    console.log("DB result:", result);
+    //console.log("DB result:", result);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Hund ej hittad"});

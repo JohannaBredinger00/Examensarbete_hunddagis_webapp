@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
-    console.log("AUTH middleware hit. Method:", req.method);
+    //console.log("AUTH middleware hit. Method:", req.method);
 
     //Always allow preflight requests
     if (req.method === "OPTIONS") {
@@ -26,7 +26,7 @@ const auth = (req, res, next) => {
     try {
         //Verify JWT
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("AUTH middlewear decoded:", decoded);
+        //console.log("AUTH middlewear decoded:", decoded);
 
         //Attach user info to request
         req.userId = decoded.userId;
