@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Examensarbete_hunddagis_webapp/static/css/main.cd2a223f.css",
+    "main.js": "/Examensarbete_hunddagis_webapp/static/js/main.71ff35ea.js",
+    "static/js/453.d7446e4a.chunk.js": "/Examensarbete_hunddagis_webapp/static/js/453.d7446e4a.chunk.js",
+    "index.html": "/Examensarbete_hunddagis_webapp/index.html",
+    "main.cd2a223f.css.map": "/Examensarbete_hunddagis_webapp/static/css/main.cd2a223f.css.map",
+    "main.71ff35ea.js.map": "/Examensarbete_hunddagis_webapp/static/js/main.71ff35ea.js.map",
+    "453.d7446e4a.chunk.js.map": "/Examensarbete_hunddagis_webapp/static/js/453.d7446e4a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cd2a223f.css",
+    "static/js/main.71ff35ea.js"
+  ]
+}
