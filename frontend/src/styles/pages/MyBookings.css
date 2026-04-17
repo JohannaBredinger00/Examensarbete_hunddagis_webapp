@@ -1,0 +1,216 @@
+.my-bookings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.my-bookings-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.booking-list {
+  list-style: none;
+  padding: 0;
+}
+
+.booking-item {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.booking-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.booking-date {
+  font-weight: bold;
+  color: #555;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dog-name {
+  font-style: italic;
+  color: #444;
+}
+
+.status-tag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  width: fit-content;
+}
+
+.status-active {
+  background-color: #e8ffd9;
+  border: 1px solid #9ad36a;
+  color: #3f7d00;
+}
+
+.status-canceled {
+  background-color: #ffe1e1;
+  border: 1px solid #ff9393;
+  color: #9b0000;
+}
+
+.btn-mybookings-cancel {
+  padding: 8px 12px;
+  border: none;
+  background-color: #ff6b6b;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-mybookings-cancel:hover {
+  background-color: #e15050;
+}
+
+.booking-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+}
+
+.booking-form label {
+  font-weight: bold;
+}
+  
+
+.booking-form select,
+.booking-form input {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.create-button {
+  padding: 10px;
+  background-color: #ecc363;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.create-button:hover {
+  background-color: orange;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.modal-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-toast-yes {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+.toast-confirm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 2px solid orange;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  text-align: center;
+}
+
+
+.btn-toast-no {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+
+.toast-confirm button {
+  display: inline-block;   
+  font-size: 14px;         
+  padding: 6px 12px;       
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toast-confirm button + button {
+  margin-left: 10px;
+}
+
+.btn-saveChanges {
+  background: lightgreen;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 600;
+  color: black;
+}
+
+.btn-cancel {
+  background: red;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 600;
+  color: black;
+  
+}
+
+
+
