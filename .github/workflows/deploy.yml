@@ -1,8 +1,36 @@
-- name: WHERE AM I?
-  run: pwd
+name: Deploy React App
 
-- name: LIST ROOT
-  run: ls -la
+on:
+  push:
+    branches: [main]
 
-- name: LIST FRONTEND
-  run: ls -la frontend
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Debug files
+        working-directory: frontend
+        run: ls -la
+
+      - name: Build project
+        working-directory: frontend
+        run: npm run build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/build
+          force_orphan: true
