@@ -8,27 +8,31 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    defaults:
+      run:
+        working-directory: frontend
 
-      - name: Use Node
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: npm
 
       - name: Install dependencies
-        working-directory: frontend
-        run: npm install
+        run: npm ci
 
       - name: Build project
-        working-directory: frontend
         run: CI=false npm run build
 
       - name: Add nojekyll
-        run: touch frontend/build/.nojekyll
+        run: touch build/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
