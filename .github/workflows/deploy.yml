@@ -17,14 +17,17 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: cd frontend && npm install
-
-      - name: Show files (DEBUG)
-        run: ls -la
         working-directory: frontend
+        run: npm install
+
+      - name: Debug files
+        working-directory: frontend
+        run: ls -la
+
 
       - name: Build project
-        run: cd frontend && npm run build
+        working-directory: frontend
+        run: npm run build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
