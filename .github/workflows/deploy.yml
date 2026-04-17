@@ -11,10 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: frontend
-
     steps:
       - uses: actions/checkout@v4
 
@@ -24,15 +20,17 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
+        working-directory: frontend
         run: npm install
 
       - name: Build project
+        working-directory: frontend
         run: CI=false npm run build
 
       - name: Add nojekyll
-        run: touch build/.nojekyll
+        run: touch frontend/build/.nojekyll
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
